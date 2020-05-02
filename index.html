@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Factorio show blueprint contents</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+</head>
+<body>
+
+<div style="display: flex;">
+<textarea name="in" id="in" cols="80" rows="10" onChange="calc(this)"></textarea>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Entity name</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+    <tbody id="out">
+
+    </tbody>
+</table>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.10/pako.min.js"></script>
+<script>
+    function calc(target) {
+        const string = target.value;
+        const removedFirst = string.slice(1);
+
+        const inflated = pako.inflate(atob(removedFirst),{ to: 'string' })
+
+        const bp = JSON.parse(inflated);
+
+        const items = {};
+        for(let entity of bp.blueprint.entities){
+            if(items[entity.name]){
+                items[entity.name] += 1;
+            }else{
+                items[entity.name] = 1;
+            }
+        }
+
+        let outstring = ''
+        for(let [name,amount] of Object.entries(items)){
+            outstring += `<tr><td>${name}</td><td>${amount}</td></tr>`
+        }
+        document.querySelector('#out').innerHTML = outstring;
+    }
+</script>
+</body>
+</html>
